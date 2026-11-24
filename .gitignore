@@ -30,3 +30,7 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Agents & AI tooling
+.agents/
+

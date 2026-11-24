@@ -48,6 +48,12 @@ export const products = pgTable('products', {
     id: uuid('id').primaryKey().defaultRandom(),
     title: varchar('title', { length: 255 }).notNull(),
     description: text('description'),
+    brand: varchar('brand', { length: 100 }),
+    imageUrl: varchar('image_url', { length: 500 }),
+    rating: numeric('rating', { precision: 3, scale: 2 }).default('4.80'),
+    reviewCount: integer('review_count').default(120),
+    badge: varchar('badge', { length: 50 }),
+    originalPrice: numeric('original_price', { precision: 10, scale: 2 }),
     categoryId: uuid('category_id').references(() => categories.id, { onDelete: 'set null' }),
     status: productStatusEnum('status').notNull().default('draft'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -61,6 +67,7 @@ export const productVariants = pgTable('product_variants', {
     price: numeric('price', { precision: 10, scale: 2 }).notNull(),
     size: varchar('size', { length: 50 }),
     color: varchar('color', { length: 50 }),
+    imageUrl: varchar('image_url', { length: 500 }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -99,4 +106,17 @@ export const orderItems = pgTable('order_items', {
     variantId: uuid('variant_id').references(() => productVariants.id, { onDelete: 'restrict' }),
     priceAtPurchase: numeric('price_at_purchase', { precision: 10, scale: 2 }).notNull(),
     quantity: integer('quantity').notNull().default(1),
-}); 
+});
+
+// ==========================================
+// 5. WEBHOOK IDEMPOTENCY & AUDIT
+// ==========================================
+
+export const webhookEvents = pgTable('webhook_events', {
+    id: varchar('id', { length: 255 }).primaryKey(), // provider event id (e.g. evt_...)
+    type: varchar('type', { length: 100 }).notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('processed'),
+    payload: text('payload'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+ 
