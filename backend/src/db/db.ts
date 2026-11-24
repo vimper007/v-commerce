@@ -3,8 +3,15 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema';
 
+const isRemoteDb =
+  process.env.NODE_ENV === 'production' ||
+  process.env.DATABASE_URL?.includes('sslmode=require') ||
+  process.env.DATABASE_URL?.includes('neon.tech') ||
+  process.env.DATABASE_URL?.includes('supabase');
+
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: isRemoteDb ? { rejectUnauthorized: false } : undefined,
 });
 
 export const db = drizzle({ client: pool });
